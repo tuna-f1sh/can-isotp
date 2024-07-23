@@ -90,7 +90,7 @@ MODULE_ALIAS("can-proto-6");
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
-#error No need to compile this out-of-tree driver! ISO-TP is part of Linux Mainline kernel since Linux 5.10.
+#pragma message "No need to compile this out-of-tree driver! ISO-TP is part of Linux Mainline kernel since Linux 5.10."
 #endif
 
 #define DBG(fmt, args...) (printk( KERN_DEBUG "can-isotp: %s: " fmt, \
@@ -1051,7 +1051,6 @@ static int isotp_recvmsg(struct kiocb *iocb, struct socket *sock,
 	struct sock *sk = sock->sk;
 	struct sk_buff *skb;
 	struct isotp_sock *so = isotp_sk(sk);
-	int noblock = flags & MSG_DONTWAIT;
 	int ret = 0;
 
 	if (flags & ~(MSG_DONTWAIT | MSG_TRUNC | MSG_PEEK))
@@ -1061,7 +1060,7 @@ static int isotp_recvmsg(struct kiocb *iocb, struct socket *sock,
 		return -EADDRNOTAVAIL;
 
 	flags &= ~MSG_DONTWAIT;
-	skb = skb_recv_datagram(sk, flags, noblock, &ret);
+	skb = skb_recv_datagram(sk, flags, &ret);
 	if (!skb)
 		return ret;
 
@@ -1627,7 +1626,6 @@ static const struct proto_ops isotp_ops = {
 	.sendmsg = isotp_sendmsg,
 	.recvmsg = isotp_recvmsg,
 	.mmap = sock_no_mmap,
-	.sendpage = sock_no_sendpage,
 };
 
 static struct proto isotp_proto __read_mostly = {
